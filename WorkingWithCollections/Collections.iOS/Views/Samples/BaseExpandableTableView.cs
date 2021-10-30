@@ -28,14 +28,20 @@ namespace Collections.Touch
 
   public class ExpandableTableSource : MvxExpandableTableViewSource
   {
+    private readonly NSString cellIdentifier;
+    protected virtual NSString CellIdentifier => cellIdentifier;
+
+    private readonly NSString headerCellIdentifier;
+    protected virtual NSString HeaderCellIdentifier => headerCellIdentifier;
+
     public ExpandableTableSource(UITableView tableView) : base(tableView)
     {
       string nibName = "KittenCell";
-      _cellIdentifier = new NSString(nibName);
+      cellIdentifier = new NSString(nibName);
       tableView.RegisterNibForCellReuse(UINib.FromName(nibName, NSBundle.MainBundle), CellIdentifier);
 
       string nibName2 = "HeaderCell";
-      _headerCellIdentifier = new NSString(nibName2);
+      headerCellIdentifier = new NSString(nibName2);
       tableView.RegisterNibForCellReuse(UINib.FromName(nibName2, NSBundle.MainBundle), HeaderCellIdentifier);
     }
 
@@ -44,11 +50,5 @@ namespace Collections.Touch
 
     protected override UITableViewCell GetOrCreateCellFor(UITableView tableView, NSIndexPath indexPath, object item)
       => tableView.DequeueReusableCell(CellIdentifier);
-
-    private readonly NSString _cellIdentifier;
-    protected virtual NSString CellIdentifier => _cellIdentifier;
-
-    private readonly NSString _headerCellIdentifier;
-    protected virtual NSString HeaderCellIdentifier => _headerCellIdentifier;
   }
 }
