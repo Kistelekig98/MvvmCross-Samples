@@ -1,61 +1,54 @@
-﻿using System.Collections.Generic;
-using MvvmCross.iOS.Views;
-using UIKit;
-using Foundation;
-using MvvmCross.Binding.BindingContext;
-using System;
+﻿using Foundation;
 using MvvmCross.iOS.Support.Views;
+using MvvmCross.iOS.Views;
+using System;
+using UIKit;
 
 namespace Collections.Touch
 {
-    public class BaseExpandableTableView : MvxTableViewController
+  public class BaseExpandableTableView : MvxTableViewController
+  {
+    protected ExpandableTableSource source;
+
+    public override void ViewDidLoad()
     {
-        protected ExpandableTableSource source;
+      base.ViewDidLoad();
 
-        public override void ViewDidLoad()
-        {
-            base.ViewDidLoad();
+      source = new ExpandableTableSource(TableView)
+      {
+        UseAnimations = true,
+        AddAnimation = UITableViewRowAnimation.Left,
+        RemoveAnimation = UITableViewRowAnimation.Right
+      };
 
-            source = new ExpandableTableSource(TableView)
-            {
-                UseAnimations = true,
-                AddAnimation = UITableViewRowAnimation.Left,
-                RemoveAnimation = UITableViewRowAnimation.Right
-            };
+      TableView.RowHeight = 120f;
+      TableView.Source = source;
+    }
+  }
 
-            TableView.RowHeight = 120f;
-            TableView.Source = source;
-        }
+  public class ExpandableTableSource : MvxExpandableTableViewSource
+  {
+    public ExpandableTableSource(UITableView tableView) : base(tableView)
+    {
+      string nibName = "KittenCell";
+      _cellIdentifier = new NSString(nibName);
+      tableView.RegisterNibForCellReuse(UINib.FromName(nibName, NSBundle.MainBundle), CellIdentifier);
+
+      string nibName2 = "HeaderCell";
+      _headerCellIdentifier = new NSString(nibName2);
+      tableView.RegisterNibForCellReuse(UINib.FromName(nibName2, NSBundle.MainBundle), HeaderCellIdentifier);
     }
 
-    public class ExpandableTableSource : MvxExpandableTableViewSource
-    {
-        public ExpandableTableSource(UITableView tableView) : base(tableView)
-        {
-            string nibName = "KittenCell";
-            _cellIdentifier = new NSString(nibName);
-            tableView.RegisterNibForCellReuse(UINib.FromName(nibName, NSBundle.MainBundle), CellIdentifier);
+    protected override UITableViewCell GetOrCreateHeaderCellFor(UITableView tableView, nint section)
+      => tableView.DequeueReusableCell(HeaderCellIdentifier);
 
+    protected override UITableViewCell GetOrCreateCellFor(UITableView tableView, NSIndexPath indexPath, object item)
+      => tableView.DequeueReusableCell(CellIdentifier);
 
-            string nibName2 = "HeaderCell";
-            _headerCellIdentifier = new NSString(nibName2);
-            tableView.RegisterNibForCellReuse(UINib.FromName(nibName2, NSBundle.MainBundle), HeaderCellIdentifier);
-        }
+    private readonly NSString _cellIdentifier;
+    protected virtual NSString CellIdentifier => _cellIdentifier;
 
-        protected override UITableViewCell GetOrCreateHeaderCellFor(UITableView tableView, nint section)
-        {
-            return tableView.DequeueReusableCell(HeaderCellIdentifier);
-        }
-
-        protected override UITableViewCell GetOrCreateCellFor(UITableView tableView, NSIndexPath indexPath, object item)
-        {
-            return tableView.DequeueReusableCell(CellIdentifier);
-        }
-
-        private readonly NSString _cellIdentifier;
-        protected virtual NSString CellIdentifier => _cellIdentifier;
-
-        private readonly NSString _headerCellIdentifier;
-        protected virtual NSString HeaderCellIdentifier => _headerCellIdentifier;
-    }
+    private readonly NSString _headerCellIdentifier;
+    protected virtual NSString HeaderCellIdentifier => _headerCellIdentifier;
+  }
 }
